@@ -2,7 +2,6 @@ import express, { type NextFunction, type Request, type Response } from 'express
 import cluster from 'cluster';
 import { availableParallelism } from 'os';
 import process from 'process';
-import { logger } from '@energypatrikhu/node-utils';
 import { parseRequestParameters } from './utils/parse-request-parameters';
 import { handleImageProxyRequest } from './utils/handle-image-proxy-request';
 import sharp from 'sharp';
@@ -12,22 +11,22 @@ import queue from 'express-queue';
 
 const maxClusterSize = process.env.MAX_CLUSTER_SIZE || '4';
 const cpuCount = Math.min(availableParallelism(), parseInt(maxClusterSize, 10));
-const clusterSize = process.env.CLUSTER_SIZE ? parseInt(process.env.CLUSTER_SIZE, 10)  = cpuCount;
-const queueSize = process.env.QUEUE_SIZE_PER_CLUSTER ? parseInt(process.env.QUEUE_SIZE_PER_CLUSTER, 10)  = false;
+const clusterSize = process.env.CLUSTER_SIZE ? parseInt(process.env.CLUSTER_SIZE, 10) : cpuCount;
+const queueSize = process.env.QUEUE_SIZE_PER_CLUSTER ? parseInt(process.env.QUEUE_SIZE_PER_CLUSTER, 10) : false;
 
-const sharpConcurrency = process.env.SHARP_CONCURRENCY ? parseInt(process.env.SHARP_CONCURRENCY, 10)  = 0;
-const sharpCache = process.env.SHARP_CACHE ? process.env.SHARP_CACHE === 'true'  = true;
-const sharpSimd = process.env.SHARP_SIMD ? process.env.SHARP_SIMD === 'true'  = true;
+const sharpConcurrency = process.env.SHARP_CONCURRENCY ? parseInt(process.env.SHARP_CONCURRENCY, 10) : 0;
+const sharpCache = process.env.SHARP_CACHE ? process.env.SHARP_CACHE === 'true' : true;
+const sharpSimd = process.env.SHARP_SIMD ? process.env.SHARP_SIMD === 'true' : true;
 
 if (cluster.isPrimary) {
-	logger('info', `Primary process ${process.pid} is running`);
+	console.log(`Primary process ${process.pid} is running`);
 
 	for (let i = 0; i < clusterSize; i++) {
 		cluster.fork();
 	}
 
 	cluster.on('exit', (worker) => {
-		logger('warn', `Worker process ${worker.process.pid} died`);
+		console.warn(`Worker process ${worker.process.pid} died`);
 		cluster.fork();
 	});
 } else {
@@ -39,7 +38,7 @@ if (cluster.isPrimary) {
 	const serverPort = process.env.PORT || 80;
 
 	if (queueSize !== false) {
-		app.use(queue({ activeLimit = queueSize, queuedLimit = -1 }));
+		app.use(queue({ activeLimit: queueSize, queuedLimit: -1 }));
 	}
 
 	let lastRequestTimestamp = Date.now();
@@ -56,7 +55,7 @@ if (cluster.isPrimary) {
 	});
 
 	app.listen(serverPort, () => {
-		logger('info', `Worker process ${process.pid} listening on port ${serverPort}`);
+		console.log(`Worker process ${process.pid} listening on port ${serverPort}`);
 
 		setInterval(() => {
 			const timeSinceLastRequest = Date.now() - lastRequestTimestamp;
