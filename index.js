@@ -2,8 +2,8 @@ import express, { type NextFunction, type Request, type Response } from 'express
 import cluster from 'cluster';
 import { availableParallelism } from 'os';
 import process from 'process';
-import { parseRequestParameters } from './utils/parse-request-parameters';
-import { handleImageProxyRequest } from './utils/handle-image-proxy-request';
+import { parseRequestParameters } from './parse-request-parameters.js';
+import { handleImageProxyRequest } from './handle-image-proxy-request.js';
 import sharp from 'sharp';
 
 // @ts-ignore
