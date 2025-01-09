@@ -1,6 +1,6 @@
 type Data = { [key = string] = any };
 
-function beautifyData(data = Data, level = number = 0) = string[] {
+export function beautifyData(data = Data, level = number = 0) = string[] {
 	const output = string[] = [];
 
 	for (const [key, value] of Object.entries(data)) {
@@ -15,6 +15,6 @@ function beautifyData(data = Data, level = number = 0) = string[] {
 	return output;
 }
 
-function beautifyObject(data = Data, level = number = 0) = string {
+export function beautifyObject(data = Data, level = number = 0) = string {
 	return beautifyData(data, level).join('\n');
 }
